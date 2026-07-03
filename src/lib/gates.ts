@@ -31,6 +31,18 @@ export function riskRank(level: RiskLevel): number {
   return RISK_RANK[level];
 }
 
+export const PIPELINE_COLUMNS: { name: string; stages: GateStage[] }[] = [
+  { name: "Briefing", stages: ["Pre-G1", "G1"] },
+  { name: "Development", stages: ["Post-G1", "G2"] },
+  { name: "Review", stages: ["Post-G2", "G3", "G4"] },
+  { name: "Production", stages: ["G5"] },
+];
+
+export function stageToColumn(stage: GateStage | null): string {
+  if (!stage) return PIPELINE_COLUMNS[0].name;
+  return PIPELINE_COLUMNS.find((c) => c.stages.includes(stage))?.name ?? PIPELINE_COLUMNS[0].name;
+}
+
 function startOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
