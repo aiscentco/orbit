@@ -9,7 +9,8 @@
       "Bash(command -v volta)",
       "Read(//usr/local/bin/**)",
       "Bash(curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh)",
-      "Bash(bash)"
+      "Bash(bash)",
+      "Bash(git add *)"
     ]
   }
 }

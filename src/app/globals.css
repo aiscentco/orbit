@@ -2,25 +2,53 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1a1a1a;
+
+  /* AIscent Co. brand palette - defaults, re-skinned per client at runtime via CSS vars */
+  --color-wow-pink: #ff2d7b;
+  --color-bloom: #ff85b3;
+  --color-petal: #ffe8f2;
+  --color-ink: #1a1a1a;
+
+  /* Per-client theme hooks: components read these, Setup/client switcher overrides them */
+  --brand-primary: var(--color-wow-pink);
+  --brand-accent: var(--color-bloom);
+
+  --color-status-green: #1f9d55;
+  --color-status-amber: #d97706;
+  --color-status-red: #dc2626;
+  --color-status-critical: #7f1d1d;
+  --color-status-purple: #7c3aed;
+
+  --font-georgia: Georgia, "Times New Roman", serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-wow-pink: var(--color-wow-pink);
+  --color-bloom: var(--color-bloom);
+  --color-petal: var(--color-petal);
+  --color-ink: var(--color-ink);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-accent: var(--brand-accent);
+
+  --color-status-green: var(--color-status-green);
+  --color-status-amber: var(--color-status-amber);
+  --color-status-red: var(--color-status-red);
+  --color-status-critical: var(--color-status-critical);
+  --color-status-purple: var(--color-status-purple);
+
+  --font-heading: var(--font-georgia);
+  --font-sans: var(--font-dm-sans), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 12px;
+  --radius-standard: 8px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
