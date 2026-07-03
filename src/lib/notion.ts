@@ -359,6 +359,14 @@ export async function getActions(productId: string): Promise<Action[]> {
   return pages.map(mapAction);
 }
 
+export async function getActionsForProducts(productIds: string[]): Promise<Action[]> {
+  if (productIds.length === 0) return [];
+  const pages = await queryAll(DATA_SOURCES.actions, {
+    or: productIds.map((id) => ({ property: "Product", relation: { contains: id } })),
+  });
+  return pages.map(mapAction);
+}
+
 export async function createAction(fields: {
   productId: string;
   note: string;
