@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(git --version)",
+      "Bash(command -v brew)",
+      "Bash(brew --version)",
+      "Bash([ -d \"$HOME/.nvm\" ])",
+      "Bash(command -v volta)",
+      "Read(//usr/local/bin/**)",
+      "Bash(curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh)",
+      "Bash(bash)"
+    ]
+  }
+}
