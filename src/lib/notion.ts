@@ -280,6 +280,34 @@ export async function getProduct(id: string): Promise<Product> {
   return mapProduct(page);
 }
 
+export async function createProduct(fields: {
+  name: string;
+  clientId: string;
+  productCode?: string;
+  campaign?: string;
+  gateStage?: GateStage;
+  launchType?: string;
+  projectStatus?: string;
+}): Promise<Product> {
+  const properties: Record<string, object> = {
+    "Product name": titleProp(fields.name),
+    Client: relationProp(fields.clientId),
+    "Gate stage": selectProp(fields.gateStage ?? "Pre-G1"),
+    "Project status": selectProp(fields.projectStatus ?? "Active"),
+  };
+  if (fields.productCode) properties["Product code"] = textProp(fields.productCode);
+  if (fields.campaign) properties.Campaign = textProp(fields.campaign);
+  if (fields.launchType) properties["Launch type"] = selectProp(fields.launchType);
+
+  const page = await notion.pages.create({
+    parent: { type: "data_source_id", data_source_id: DATA_SOURCES.products },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    properties: properties as any,
+  });
+  if (!isFullPage(page)) throw new Error("Created product is not accessible");
+  return mapProduct(page);
+}
+
 const PRODUCT_FIELD_WRITERS: {
   [K in keyof Product]?: (value: NonNullable<Product[K]>) => object;
 } = {

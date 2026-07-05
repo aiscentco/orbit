@@ -2,6 +2,7 @@
 
 import {
   updateProduct,
+  createProduct,
   createAction,
   updateAction,
   type GateStage,
@@ -9,6 +10,20 @@ import {
   type ActionStatus,
 } from "@/lib/notion";
 import { revalidatePath } from "next/cache";
+
+export async function createNewProduct(fields: {
+  name: string;
+  clientId: string;
+  productCode?: string;
+  campaign?: string;
+  gateStage?: GateStage;
+  launchType?: string;
+}) {
+  const product = await createProduct(fields);
+  revalidatePath("/pipeline");
+  revalidatePath("/");
+  return product;
+}
 
 export async function moveProductStage(productId: string, stage: GateStage) {
   await updateProduct(productId, { gateStage: stage });
