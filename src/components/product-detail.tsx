@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import type { Product, Action, Client, ActionStatus } from "@/lib/notion";
 import { GATE_STAGES, type GateStage } from "@/lib/notion";
 import { computeRisk, STAGE_PROGRESS } from "@/lib/gates";
@@ -112,6 +113,7 @@ export function ProductDetail({
   client: Client | null;
   actions: Action[];
 }) {
+  const router = useRouter();
   const [current, setCurrent] = useState(product);
   const [form, setForm] = useState(product);
   const [dirty, setDirty] = useState(false);
@@ -179,6 +181,12 @@ export function ProductDetail({
 
   return (
     <div className="p-8">
+      <button
+        onClick={() => router.back()}
+        className="mb-4 text-sm text-ink/50 hover:text-brand-primary"
+      >
+        ← Back
+      </button>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs text-ink/40">
