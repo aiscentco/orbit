@@ -82,9 +82,9 @@ export function buildAgenda(
     }
   }
 
-  if (!lunchInserted) {
-    push("lunch", "Lunch break", LUNCH_DURATION_MINUTES);
-  }
+  // Lunch only appears if the schedule is actually still running once it
+  // reaches the configured time - a short meeting that wraps up beforehand
+  // shouldn't have one forced in.
 
   push("aob", "AOB", AOB_MINUTES);
   push("close", "Close", CLOSE_MINUTES);
