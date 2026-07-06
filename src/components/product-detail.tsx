@@ -9,6 +9,7 @@ import { GateStepper } from "@/components/gate-stepper";
 import { ProgressBar } from "@/components/progress-bar";
 import { RiskBadge } from "@/components/risk-badge";
 import { moveProductStage, saveProductFields, addProductAction, cycleActionStatus } from "@/lib/actions";
+import { SkillsPanel } from "@/components/skills-panel";
 
 const GATE_DECISIONS = ["GO (on time)", "GO (late)", "HOLD", "POSTPONE", "CANCEL"] as const;
 const LAUNCH_TYPES = ["Regular", "Super", "Mega", "Hero"] as const;
@@ -291,6 +292,12 @@ export function ProductDetail({
           </div>
         </div>
 
+        <div className="flex flex-col gap-6">
+        <SkillsPanel
+          gateStage={current.gateStage}
+          productId={product.id}
+          onLaunched={(action) => setActionList((prev) => [action, ...prev])}
+        />
         <div className="rounded-card border border-black/5 p-4">
           <h2 className="font-heading text-lg text-ink">Actions</h2>
 
@@ -338,6 +345,7 @@ export function ProductDetail({
               </div>
             ))}
           </div>
+        </div>
         </div>
       </div>
     </div>

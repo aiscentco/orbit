@@ -50,6 +50,18 @@ export async function addProductAction(fields: {
   return action;
 }
 
+export async function launchSkill(productId: string, skillName: string) {
+  const action = await createAction({
+    productId,
+    note: `Launched skill: ${skillName}`,
+    status: "Done",
+    source: "Skill trigger",
+  });
+  revalidatePath(`/products/${productId}`);
+  revalidatePath("/");
+  return action;
+}
+
 const NEXT_STATUS: Record<ActionStatus, ActionStatus> = {
   "To do": "Waiting",
   Waiting: "Done",
