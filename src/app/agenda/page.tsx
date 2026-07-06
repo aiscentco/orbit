@@ -1,4 +1,5 @@
-import { getClient, getProducts, getActionsForProducts } from "@/lib/notion";
+import Link from "next/link";
+import { getClient, getClients, getProducts, getActionsForProducts } from "@/lib/notion";
 import { AgendaBuilder } from "@/components/agenda-builder";
 
 export default async function AgendaPage({
@@ -9,12 +10,27 @@ export default async function AgendaPage({
   const { client: activeClientId } = await searchParams;
 
   if (!activeClientId) {
+    const clients = await getClients().catch(() => []);
     return (
       <div className="p-8">
         <h1 className="font-heading text-3xl text-ink">Agenda</h1>
         <p className="mt-2 text-sm text-ink/60">
-          Select a client from the sidebar to build their gate meeting agenda.
+          A gate meeting agenda is built for one client at a time. Pick who today&apos;s meeting is for:
         </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {clients.map((c) => (
+            <Link
+              key={c.id}
+              href={`/agenda?client=${c.id}`}
+              className="rounded-lg border border-black/10 px-4 py-2 text-sm font-medium text-ink hover:border-brand-primary hover:text-brand-primary"
+            >
+              {c.name}
+            </Link>
+          ))}
+          {clients.length === 0 && (
+            <p className="text-sm text-ink/40">No clients found yet.</p>
+          )}
+        </div>
       </div>
     );
   }
