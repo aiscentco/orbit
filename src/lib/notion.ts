@@ -58,6 +58,7 @@ export type Product = {
   productCode: string | null;
   campaign: string | null;
   gateStage: GateStage | null;
+  stageEntered: string | null;
   gateDecision: string | null;
   nextGateDate: string | null;
   launchType: string | null;
@@ -79,7 +80,7 @@ export type Product = {
 };
 
 export type ActionStatus = "To do" | "Waiting" | "Done";
-export type ActionSource = "Manual" | "AI-extracted" | "Skill trigger";
+export type ActionSource = "Manual" | "AI-extracted" | "Skill trigger" | "History";
 
 export type Action = {
   id: string;
@@ -158,8 +159,8 @@ function relationId(props: NotionProperties, key: string): string | null {
 
 const titleProp = (value: string) => ({ title: [{ text: { content: value } }] });
 const textProp = (value: string) => ({ rich_text: [{ text: { content: value } }] });
-const selectProp = (value: string) => ({ select: { name: value } });
-const dateProp = (value: string) => ({ date: { start: value } });
+const selectProp = (value: string) => (value ? { select: { name: value } } : { select: null });
+const dateProp = (value: string) => (value ? { date: { start: value } } : { date: null });
 const numberProp = (value: number) => ({ number: value });
 const relationProp = (id: string) => ({ relation: [{ id }] });
 
@@ -201,6 +202,7 @@ function mapProduct(page: PageObjectResponse): Product {
     gateStage: (GATE_STAGES as readonly string[]).includes(stage ?? "")
       ? (stage as GateStage)
       : null,
+    stageEntered: dateStart(p, "Stage entered"),
     gateDecision: select(p, "Gate decision"),
     nextGateDate: dateStart(p, "Next gate date"),
     launchType: select(p, "Launch type"),
@@ -293,6 +295,7 @@ export async function createProduct(fields: {
     "Product name": titleProp(fields.name),
     Client: relationProp(fields.clientId),
     "Gate stage": selectProp(fields.gateStage ?? "Pre-G1"),
+    "Stage entered": dateProp(new Date().toISOString().slice(0, 10)),
     "Project status": selectProp(fields.projectStatus ?? "Active"),
   };
   if (fields.productCode) properties["Product code"] = textProp(fields.productCode);
@@ -315,6 +318,7 @@ const PRODUCT_FIELD_WRITERS: {
   productCode: (v) => textProp(v as string),
   campaign: (v) => textProp(v as string),
   gateStage: (v) => selectProp(v as string),
+  stageEntered: (v) => dateProp(v as string),
   gateDecision: (v) => selectProp(v as string),
   nextGateDate: (v) => dateProp(v as string),
   launchType: (v) => selectProp(v as string),
@@ -340,6 +344,7 @@ const PRODUCT_NOTION_KEYS: Partial<Record<keyof Product, string>> = {
   productCode: "Product code",
   campaign: "Campaign",
   gateStage: "Gate stage",
+  stageEntered: "Stage entered",
   gateDecision: "Gate decision",
   nextGateDate: "Next gate date",
   launchType: "Launch type",

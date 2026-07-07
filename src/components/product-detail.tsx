@@ -142,10 +142,13 @@ export function ProductDetail({
   }
 
   function handleGateSelect(stage: GateStage) {
+    if (stage === current.gateStage) return;
     setCurrent((c) => ({ ...c, gateStage: stage }));
     setForm((f) => ({ ...f, gateStage: stage }));
     startGateTransition(async () => {
-      await moveProductStage(product.id, stage);
+      const updated = await moveProductStage(product.id, stage);
+      setCurrent((c) => ({ ...c, stageEntered: updated.stageEntered }));
+      setForm((f) => ({ ...f, stageEntered: updated.stageEntered }));
     });
   }
 
@@ -218,6 +221,9 @@ export function ProductDetail({
         <div className="mt-3">
           <GateStepper currentStage={current.gateStage} onSelect={handleGateSelect} disabled={gatePending} />
         </div>
+        {current.stageEntered && (
+          <p className="mt-2 text-xs text-ink/40">In this stage since {current.stageEntered}</p>
+        )}
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">

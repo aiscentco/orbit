@@ -251,9 +251,13 @@ A chat panel (collapsible, bottom-right) where the user asks natural-language qu
 - **Keyboard-first data entry** on forms: tab order correct, Enter submits, Esc cancels.
 - **Mobile-responsive throughout** — PMs check status from phones; the dashboard and pipeline must work on a phone screen (cards stack vertically).
 
+> **Audit resolution (post-Milestone 7):** Product Detail's single batch "Save" button for its ~15 fields was reviewed against "inline editing everywhere" and confirmed compliant — it qualifies as the "complex form" exception this principle already carves out. Not a gap; no change needed.
+
 ## 13. Where Pulse lives (architecture note — do not build yet)
 
 Pulse (Phase 3, ongoing monitoring) will live INSIDE the Orbit web app as a separate section/tab — not a separate application. It reads the same data Orbit already collects and turns it into process-health monitoring over time: gate slippage trends, average time-in-stage vs template norms, late-rate per function, action completion rates, skill usage. Design decisions now should keep this possible: keep historical data (never hard-delete actions or gate decisions; keep stage-change history via the "Stage entered" property and an append-only log if needed). Nova stays separate (pre-engagement diagnostic); Pulse may later trigger periodic mini-surveys reusing Nova's question engine, but that is a future integration, not part of this build.
+
+> **Audit resolution (post-Milestone 7):** three test records (2 actions, 1 product) created during Milestone 4/7 verification were archived to Notion's trash (soft-delete, recoverable) after testing. These were synthetic data created and removed within the same session, not real business history, so this doesn't violate the no-hard-delete rule. No action needed. Fixed going forward by the history-fix milestone: real "Gate stage" and "Gate decision" changes are now logged (never overwritten silently) via a `Source: "History"` action and the new "Stage entered" date property.
 
 ## 14. Features added during build
 

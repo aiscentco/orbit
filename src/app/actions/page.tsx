@@ -19,7 +19,10 @@ export default async function ActionsPage({
     products = fetched.filter(
       (p) => p.projectStatus !== "Cancelled" && p.projectStatus !== "Completed"
     );
-    actions = await getActionsForProducts(products.map((p) => p.id));
+    const fetchedActions = await getActionsForProducts(products.map((p) => p.id));
+    // "History" entries (stage/decision changes) are system-generated audit
+    // records, not actionable work - keep them out of the task list.
+    actions = fetchedActions.filter((a) => a.source !== "History");
   } catch (err) {
     error = err instanceof Error ? err.message : "Unknown error";
   }

@@ -15,10 +15,14 @@ export default async function ProductDetailPage({
 
   try {
     product = await getProduct(id);
-    [client, actions] = await Promise.all([
+    let fetchedActions: Awaited<ReturnType<typeof getActions>>;
+    [client, fetchedActions] = await Promise.all([
       product.clientId ? getClient(product.clientId) : Promise.resolve(null),
       getActions(id),
     ]);
+    // "History" entries (stage/decision changes) are system-generated audit
+    // records, not actionable work - keep them out of the action log.
+    actions = fetchedActions.filter((a) => a.source !== "History");
   } catch (err) {
     error = err instanceof Error ? err.message : "Unknown error";
   }
