@@ -32,11 +32,15 @@ export default async function RootLayout({
       lang="en"
       className={`${dmSans.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex bg-white text-ink">
-        <Suspense fallback={<div className="w-60 shrink-0 border-r border-black/5 bg-white" />}>
+      <body className="min-h-full flex flex-col bg-white text-ink md:flex-row">
+        <Suspense
+          fallback={
+            <div className="h-14 border-b border-black/5 bg-white md:h-auto md:w-60 md:shrink-0 md:border-b-0 md:border-r" />
+          }
+        >
           <Sidebar clients={clients} />
         </Suspense>
-        <main className="flex-1 min-w-0">{children}</main>
+        <main className="min-w-0 flex-1">{children}</main>
       </body>
     </html>
   );

@@ -100,7 +100,7 @@ export function PipelineBoard({
             key={col.name}
             onDragOver={(e) => groupBy === "stage" && e.preventDefault()}
             onDrop={(e) => handleDrop(col.entryStage, e)}
-            className="w-72 shrink-0 rounded-card bg-petal/40 p-3"
+            className="w-full shrink-0 rounded-card bg-petal/40 p-3 sm:w-72"
           >
             <p className="mb-2 font-heading text-sm text-ink/70">
               {col.name} <span className="text-ink/40">({col.products.length})</span>
