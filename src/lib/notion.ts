@@ -163,6 +163,7 @@ const selectProp = (value: string) => (value ? { select: { name: value } } : { s
 const dateProp = (value: string) => (value ? { date: { start: value } } : { date: null });
 const numberProp = (value: number) => ({ number: value });
 const relationProp = (id: string) => ({ relation: [{ id }] });
+const checkboxProp = (value: boolean) => ({ checkbox: value });
 
 // --- Mappers -------------------------------------------------------------
 
@@ -264,6 +265,47 @@ export async function getClients(): Promise<Client[]> {
 
 export async function getClient(id: string): Promise<Client> {
   const page = await notion.pages.retrieve({ page_id: id });
+  if (!isFullPage(page)) throw new Error(`Client ${id} is not accessible`);
+  return mapClient(page);
+}
+
+const CLIENT_LABEL_KEYS: Record<keyof Client["labels"], string> = {
+  campaign: "Label: campaign",
+  demand: "Label: demand",
+  revenueKpi: "Label: revenue KPI",
+  marginKpi: "Label: margin KPI",
+  planningSystem: "Label: planning system",
+  bmRole: "Label: BM role",
+};
+
+export async function updateClient(
+  id: string,
+  fields: Partial<Omit<Client, "id" | "labels">> & { labels?: Partial<Client["labels"]> }
+): Promise<Client> {
+  const properties: Record<string, object> = {};
+
+  if (fields.name !== undefined) properties["Client name"] = titleProp(fields.name);
+  if (fields.engagementStart) properties["Engagement start"] = dateProp(fields.engagementStart);
+  if (fields.consultingLead) properties["Consulting lead"] = selectProp(fields.consultingLead);
+  if (fields.status) properties["Status"] = selectProp(fields.status);
+  if (fields.brandPrimaryColor) properties["Brand primary color"] = textProp(fields.brandPrimaryColor);
+  if (fields.brandAccentColor) properties["Brand accent color"] = textProp(fields.brandAccentColor);
+  if (fields.halalRequired !== undefined) properties["HALAL required"] = checkboxProp(fields.halalRequired);
+  if (fields.chinaComplianceRequired !== undefined)
+    properties["China compliance required"] = checkboxProp(fields.chinaComplianceRequired);
+  if (fields.notes !== undefined && fields.notes !== null) properties["Notes"] = textProp(fields.notes);
+
+  if (fields.labels) {
+    for (const key of Object.keys(fields.labels) as (keyof Client["labels"])[]) {
+      const value = fields.labels[key];
+      if (value !== undefined && value !== null) {
+        properties[CLIENT_LABEL_KEYS[key]] = textProp(value);
+      }
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const page = await notion.pages.update({ page_id: id, properties: properties as any });
   if (!isFullPage(page)) throw new Error(`Client ${id} is not accessible`);
   return mapClient(page);
 }

@@ -5,16 +5,28 @@ import {
   createProduct,
   createAction,
   updateAction,
+  updateClient,
   getProduct,
   type GateStage,
   type Product,
   type ActionStatus,
   type Action,
+  type Client,
 } from "@/lib/notion";
 import { revalidatePath } from "next/cache";
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+export async function saveClientFields(
+  clientId: string,
+  fields: Partial<Omit<Client, "id" | "labels">> & { labels?: Partial<Client["labels"]> }
+) {
+  const updated = await updateClient(clientId, fields);
+  revalidatePath("/setup");
+  revalidatePath("/");
+  return updated;
 }
 
 export async function createNewProduct(fields: {
