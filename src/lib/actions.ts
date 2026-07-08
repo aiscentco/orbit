@@ -9,6 +9,7 @@ import {
   type GateStage,
   type Product,
   type ActionStatus,
+  type Action,
 } from "@/lib/notion";
 import { revalidatePath } from "next/cache";
 
@@ -76,6 +77,27 @@ export async function addProductAction(fields: {
   const action = await createAction({ ...fields, source: "Manual" });
   revalidatePath(`/products/${fields.productId}`);
   return action;
+}
+
+export async function createExtractedActions(
+  productId: string,
+  items: { owner?: string; note: string; status?: ActionStatus }[]
+): Promise<Action[]> {
+  const created: Action[] = [];
+  for (const item of items) {
+    const action = await createAction({
+      productId,
+      note: item.note,
+      owner: item.owner,
+      status: item.status,
+      source: "AI-extracted",
+    });
+    created.push(action);
+  }
+  revalidatePath(`/products/${productId}`);
+  revalidatePath("/actions");
+  revalidatePath("/");
+  return created;
 }
 
 export async function launchSkill(productId: string, skillName: string) {
