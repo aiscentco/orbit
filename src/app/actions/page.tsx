@@ -1,12 +1,15 @@
-import { getClients, getProducts, getActionsForProducts } from "@/lib/notion";
+import { getClients, getClient, getProducts, getActionsForProducts } from "@/lib/notion";
 import { ActionsList } from "@/components/actions-list";
+import { getAuthContext, resolveClientFilter } from "@/lib/auth";
 
 export default async function ActionsPage({
   searchParams,
 }: {
   searchParams: Promise<{ client?: string }>;
 }) {
-  const { client: activeClientId } = await searchParams;
+  const authCtx = await getAuthContext();
+  const { client: requestedClientId } = await searchParams;
+  const activeClientId = resolveClientFilter(authCtx, requestedClientId);
 
   let error: string | null = null;
   let clients: Awaited<ReturnType<typeof getClients>> = [];
@@ -14,7 +17,13 @@ export default async function ActionsPage({
   let actions: Awaited<ReturnType<typeof getActionsForProducts>> = [];
 
   try {
-    clients = await getClients();
+    // Client-role users only ever see their own client's name, never the
+    // full roster - fetch just that one record rather than getClients().
+    if (authCtx.status === "client") {
+      clients = [await getClient(authCtx.clientId)];
+    } else {
+      clients = await getClients();
+    }
     const fetched = await getProducts(activeClientId || undefined);
     products = fetched.filter(
       (p) => p.projectStatus !== "Cancelled" && p.projectStatus !== "Completed"

@@ -1,5 +1,5 @@
 import {
-  getClients,
+  getClient,
   getProducts,
   getActionsForProducts,
   type Client,
@@ -8,6 +8,7 @@ import {
 import { computeRisk, riskRank, STAGE_PROGRESS, type Risk } from "@/lib/gates";
 import { ProgressRing } from "@/components/progress-ring";
 import { RiskBadge } from "@/components/risk-badge";
+import { getAuthContext, resolveClientFilter } from "@/lib/auth";
 
 function greeting(hour: number): string {
   if (hour < 12) return "Good morning";
@@ -29,15 +30,17 @@ export default async function DashboardPage({
 }: {
   searchParams: Promise<{ client?: string }>;
 }) {
-  const { client: activeClientId } = await searchParams;
+  const authCtx = await getAuthContext();
+  const { client: requestedClientId } = await searchParams;
+  const activeClientId = resolveClientFilter(authCtx, requestedClientId);
 
-  let clients: Client[] = [];
+  let activeClient: Client | null = null;
   let ranked: { product: Product; risk: Risk }[] = [];
   let openActionsCount = 0;
   let connectionError: string | null = null;
 
   try {
-    clients = await getClients();
+    if (activeClientId) activeClient = await getClient(activeClientId);
     const products = await getProducts(activeClientId || undefined);
     const visibleProducts = products.filter(
       (p) => p.projectStatus !== "Cancelled" && p.projectStatus !== "Completed"
@@ -72,7 +75,6 @@ export default async function DashboardPage({
     );
   }
 
-  const activeClient = clients.find((c) => c.id === activeClientId) ?? null;
   const bmLabel = activeClient?.labels.bmRole || "BM";
 
   const lateOrCritical = ranked.filter(

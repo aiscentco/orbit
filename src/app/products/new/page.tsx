@@ -1,18 +1,26 @@
-import { getClients } from "@/lib/notion";
+import { getClients, getClient } from "@/lib/notion";
 import { NewProductForm } from "@/components/new-product-form";
+import { getAuthContext } from "@/lib/auth";
 
 export default async function NewProductPage({
   searchParams,
 }: {
   searchParams: Promise<{ client?: string }>;
 }) {
+  const authCtx = await getAuthContext();
   const { client } = await searchParams;
 
   let clients: Awaited<ReturnType<typeof getClients>> = [];
   let error: string | null = null;
 
   try {
-    clients = await getClients();
+    // Client-role users can only ever create a product for their own
+    // client - they never see or can pick any other client here.
+    if (authCtx.status === "client") {
+      clients = [await getClient(authCtx.clientId)];
+    } else {
+      clients = await getClients();
+    }
   } catch (err) {
     error = err instanceof Error ? err.message : "Unknown error";
   }
@@ -29,5 +37,7 @@ export default async function NewProductPage({
     );
   }
 
-  return <NewProductForm clients={clients} defaultClientId={client} />;
+  const defaultClientId = authCtx.status === "client" ? authCtx.clientId : client;
+
+  return <NewProductForm clients={clients} defaultClientId={defaultClientId} />;
 }

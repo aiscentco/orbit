@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { getClient, getClients, getProducts, getActionsForProducts } from "@/lib/notion";
 import { AgendaBuilder } from "@/components/agenda-builder";
+import { getAuthContext, resolveClientFilter } from "@/lib/auth";
 
 export default async function AgendaPage({
   searchParams,
 }: {
   searchParams: Promise<{ client?: string }>;
 }) {
-  const { client: activeClientId } = await searchParams;
+  const authCtx = await getAuthContext();
+  const { client: requestedClientId } = await searchParams;
+  const activeClientId = resolveClientFilter(authCtx, requestedClientId);
 
   if (!activeClientId) {
     const clients = await getClients().catch(() => []);

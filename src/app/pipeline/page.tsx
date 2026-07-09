@@ -1,21 +1,24 @@
 import Link from "next/link";
-import { getClients, getProducts, getActionsForProducts, type Client, type Product } from "@/lib/notion";
+import { getClient, getProducts, getActionsForProducts, type Client, type Product } from "@/lib/notion";
 import { PipelineBoard } from "@/components/pipeline-board";
+import { getAuthContext, resolveClientFilter } from "@/lib/auth";
 
 export default async function PipelinePage({
   searchParams,
 }: {
   searchParams: Promise<{ client?: string }>;
 }) {
-  const { client: activeClientId } = await searchParams;
+  const authCtx = await getAuthContext();
+  const { client: requestedClientId } = await searchParams;
+  const activeClientId = resolveClientFilter(authCtx, requestedClientId);
 
-  let clients: Client[] = [];
+  let activeClient: Client | null = null;
   let products: Product[] = [];
   let openActionProductIds: string[] = [];
   let connectionError: string | null = null;
 
   try {
-    clients = await getClients();
+    if (activeClientId) activeClient = await getClient(activeClientId);
     const fetched = await getProducts(activeClientId || undefined);
     products = fetched.filter(
       (p) => p.projectStatus !== "Cancelled" && p.projectStatus !== "Completed"
@@ -42,7 +45,6 @@ export default async function PipelinePage({
     );
   }
 
-  const activeClient = clients.find((c) => c.id === activeClientId) ?? null;
   const bmLabel = activeClient?.labels.bmRole || "BM";
 
   return (

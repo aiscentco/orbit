@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { SignOutButton } from "@clerk/nextjs";
 import type { Client } from "@/lib/notion";
 
 const NAV_ITEMS = [
@@ -17,12 +18,25 @@ const NAV_ITEMS = [
 const DEFAULT_PRIMARY = "#FF2D7B";
 const DEFAULT_ACCENT = "#FF85B3";
 
-export function Sidebar({ clients }: { clients: Client[] }) {
+export function Sidebar({
+  clients,
+  role,
+}: {
+  clients: Client[];
+  role: "consultant" | "client" | null;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeClientId = searchParams.get("client") ?? "";
-  const activeClient = clients.find((c) => c.id === activeClientId) ?? null;
+  const isAuthRoute = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
+
+  // Client-role users are always locked to their one client (the only entry
+  // in `clients`); consultants pick via the switcher and can view "all".
+  const lockedClient = role === "client" ? (clients[0] ?? null) : null;
+  const switcherClientId = searchParams.get("client") ?? "";
+  const activeClientId = lockedClient?.id ?? switcherClientId;
+  const activeClient = lockedClient ?? clients.find((c) => c.id === switcherClientId) ?? null;
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
 
@@ -38,6 +52,8 @@ export function Sidebar({ clients }: { clients: Client[] }) {
     root.style.setProperty("--brand-primary", activeClient?.brandPrimaryColor || DEFAULT_PRIMARY);
     root.style.setProperty("--brand-accent", activeClient?.brandAccentColor || DEFAULT_ACCENT);
   }, [activeClient?.brandPrimaryColor, activeClient?.brandAccentColor]);
+
+  if (isAuthRoute) return null;
 
   function navHref(href: string) {
     return activeClientId ? `${href}?client=${activeClientId}` : href;
@@ -91,24 +107,28 @@ export function Sidebar({ clients }: { clients: Client[] }) {
           </button>
         </div>
 
-        {clients.length > 0 && (
-          <div className="px-3 pb-3">
-            <select
-              value={activeClientId}
-              onChange={handleClientChange}
-              className="w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-sm text-ink"
-            >
-              <option value="">All clients</option>
-              {clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {lockedClient ? (
+          <div className="px-6 pb-3 text-sm font-medium text-ink">{lockedClient.name}</div>
+        ) : (
+          clients.length > 0 && (
+            <div className="px-3 pb-3">
+              <select
+                value={switcherClientId}
+                onChange={handleClientChange}
+                className="w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-sm text-ink"
+              >
+                <option value="">All clients</option>
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )
         )}
 
-        <nav className="flex flex-col gap-1 px-3">
+        <nav className="flex flex-1 flex-col gap-1 px-3">
           {NAV_ITEMS.map((item) => {
             const active =
               item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
@@ -127,6 +147,16 @@ export function Sidebar({ clients }: { clients: Client[] }) {
             );
           })}
         </nav>
+
+        {role && (
+          <div className="px-3 pb-6">
+            <SignOutButton redirectUrl="/sign-in">
+              <button className="w-full rounded-lg px-3 py-2 text-left text-sm text-ink/50 hover:bg-brand-accent/10">
+                Sign out
+              </button>
+            </SignOutButton>
+          </div>
+        )}
       </aside>
     </>
   );

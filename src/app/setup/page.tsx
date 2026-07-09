@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { getClients, getClient } from "@/lib/notion";
 import { ClientSetupForm } from "@/components/client-setup-form";
+import { getAuthContext, resolveClientFilter } from "@/lib/auth";
 
 export default async function SetupPage({
   searchParams,
 }: {
   searchParams: Promise<{ client?: string }>;
 }) {
-  const { client: activeClientId } = await searchParams;
+  const authCtx = await getAuthContext();
+  const { client: requestedClientId } = await searchParams;
+  const activeClientId = resolveClientFilter(authCtx, requestedClientId);
 
   if (!activeClientId) {
     const clients = await getClients().catch(() => []);
