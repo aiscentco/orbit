@@ -238,6 +238,9 @@ Add to product detail and G2 views: Target cost, Quoted cost, Final cost (create
 ### Milestone 16 — Orbit Assistant (AI chat over the pipeline)
 A chat panel (collapsible, bottom-right) where the user asks natural-language questions about their pipeline: "which products are late?", "what's blocking W4-27?", "summarize what happened this week." Implementation: server route that sends the question + a compact JSON snapshot of the active client's products and open actions to claude-sonnet-4-6, returns a concise answer with product names as links. No write actions in v1 — read-only answers. Keep responses short and specific. This is a differentiator for client demos.
 
+### Milestone 17 — Predictive delay insights
+Once real client data has accumulated over enough gate cycles (the "History" log from the history-fix milestone is the raw material), look for patterns in what tends to cause delays — e.g. certain campaign types, suppliers, or launch types consistently slipping at a particular gate — and surface that as a forward-looking signal on new products ("products like this one have historically run ~2 weeks over at G2"). Do not start this before there's enough real history to learn from; on a handful of products this would just be guessing dressed up as data. Revisit scoping (what to predict, what counts as "similar") once that data exists.
+
 ## 12. UI/UX principles (apply across ALL milestones, including 1–11)
 
 - **Inline editing everywhere.** Click any field value to edit it in place; save on blur. Avoid separate edit modes and Save buttons where possible (keep one explicit Save only on complex forms).
