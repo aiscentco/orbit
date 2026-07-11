@@ -55,3 +55,12 @@ export async function assertClientAccess(clientId: string | null): Promise<void>
   if (ctx.status === "client" && clientId === ctx.clientId) return;
   throw new Error("Not authorized to modify this client's data.");
 }
+
+/**
+ * Creating a brand-new client isn't scoped to any existing client, so
+ * assertClientAccess doesn't apply - only a consultant may do this at all.
+ */
+export async function assertConsultant(): Promise<void> {
+  const ctx = await getAuthContext();
+  if (ctx.status !== "consultant") throw new Error("Only a consultant can do this.");
+}

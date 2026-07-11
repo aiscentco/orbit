@@ -310,6 +310,28 @@ export async function updateClient(
   return mapClient(page);
 }
 
+export async function createClient(fields: {
+  name: string;
+  consultingLead?: string;
+  status?: string;
+  engagementStart?: string;
+}): Promise<Client> {
+  const properties: Record<string, object> = {
+    "Client name": titleProp(fields.name),
+    "Consulting lead": selectProp(fields.consultingLead ?? ""),
+    Status: selectProp(fields.status ?? "Pilot"),
+    "Engagement start": dateProp(fields.engagementStart ?? new Date().toISOString().slice(0, 10)),
+  };
+
+  const page = await notion.pages.create({
+    parent: { type: "data_source_id", data_source_id: DATA_SOURCES.clients },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    properties: properties as any,
+  });
+  if (!isFullPage(page)) throw new Error("Created client is not accessible");
+  return mapClient(page);
+}
+
 export async function getProducts(clientId?: string): Promise<Product[]> {
   const filter = clientId
     ? { property: "Client", relation: { contains: clientId } }

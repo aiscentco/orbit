@@ -120,6 +120,7 @@ export function ProductDetail({
   const [form, setForm] = useState(product);
   const [dirty, setDirty] = useState(false);
   const [showShadeCount, setShowShadeCount] = useState(product.shadeCount !== null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [actionList, setActionList] = useState(actions);
   const [newNote, setNewNote] = useState("");
   const [newOwner, setNewOwner] = useState("");
@@ -227,9 +228,21 @@ export function ProductDetail({
         )}
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <h2 className="font-heading text-lg text-ink">Details</h2>
+      <div className="mt-8">
+        <button
+          type="button"
+          onClick={() => setDetailsOpen((o) => !o)}
+          className="flex items-center gap-2 font-heading text-lg text-ink"
+        >
+          Details
+          <span className={`text-sm text-ink/40 transition-transform ${detailsOpen ? "rotate-180" : ""}`}>
+            ▾
+          </span>
+        </button>
+        {!detailsOpen && (
+          <p className="mt-1 text-xs text-ink/40">Campaign, leads, suppliers, targets… click to expand.</p>
+        )}
+        {detailsOpen && (
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FieldText label={campaignLabel} value={form.campaign ?? ""} onChange={(v) => updateField("campaign", v)} />
             <FieldSelect
@@ -297,9 +310,10 @@ export function ProductDetail({
             />
             <FieldText label="Brief link" value={form.briefLink ?? ""} onChange={(v) => updateField("briefLink", v)} />
           </div>
-        </div>
+        )}
+      </div>
 
-        <div className="flex flex-col gap-6">
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
         <SkillsPanel
           gateStage={current.gateStage}
           productId={product.id}
@@ -311,6 +325,9 @@ export function ProductDetail({
           stage={current.gateStage}
           onExtracted={(actions) => setActionList((prev) => [...actions, ...prev])}
         />
+      </div>
+
+      <div className="mt-6">
         <div className="rounded-card border border-black/5 p-4">
           <h2 className="font-heading text-lg text-ink">Actions</h2>
 
@@ -358,7 +375,6 @@ export function ProductDetail({
               </div>
             ))}
           </div>
-        </div>
         </div>
       </div>
     </div>

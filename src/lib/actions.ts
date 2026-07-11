@@ -6,6 +6,7 @@ import {
   createAction,
   updateAction,
   updateClient,
+  createClient,
   getProduct,
   type GateStage,
   type Product,
@@ -14,7 +15,7 @@ import {
   type Client,
 } from "@/lib/notion";
 import { revalidatePath } from "next/cache";
-import { assertClientAccess } from "@/lib/auth";
+import { assertClientAccess, assertConsultant } from "@/lib/auth";
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
@@ -29,6 +30,19 @@ export async function saveClientFields(
   revalidatePath("/setup");
   revalidatePath("/");
   return updated;
+}
+
+export async function createNewClient(fields: {
+  name: string;
+  consultingLead?: string;
+  status?: string;
+  engagementStart?: string;
+}) {
+  await assertConsultant();
+  const client = await createClient(fields);
+  revalidatePath("/setup");
+  revalidatePath("/");
+  return client;
 }
 
 export async function createNewProduct(fields: {
