@@ -1,16 +1,18 @@
 import Link from "next/link";
 import { getClient, getProducts, getActionsForProducts, type Client, type Product } from "@/lib/notion";
 import { PipelineBoard } from "@/components/pipeline-board";
+import { LaunchTimeline } from "@/components/launch-timeline";
 import { getAuthContext, resolveClientFilter } from "@/lib/auth";
 
 export default async function PipelinePage({
   searchParams,
 }: {
-  searchParams: Promise<{ client?: string }>;
+  searchParams: Promise<{ client?: string; view?: string }>;
 }) {
   const authCtx = await getAuthContext();
-  const { client: requestedClientId } = await searchParams;
+  const { client: requestedClientId, view: requestedView } = await searchParams;
   const activeClientId = resolveClientFilter(authCtx, requestedClientId);
+  const view = requestedView === "timeline" ? "timeline" : "board";
 
   let activeClient: Client | null = null;
   let products: Product[] = [];
@@ -47,24 +49,58 @@ export default async function PipelinePage({
 
   const bmLabel = activeClient?.labels.bmRole || "BM";
 
+  function viewHref(v: "board" | "timeline") {
+    const params = new URLSearchParams();
+    if (activeClientId) params.set("client", activeClientId);
+    if (v !== "board") params.set("view", v);
+    const query = params.toString();
+    return query ? `/pipeline?${query}` : "/pipeline";
+  }
+
   return (
     <div className="p-8">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-heading text-3xl text-ink">Pipeline</h1>
           <p className="mt-1 text-sm text-ink/60">
-            Drag a card to a column to move it to that stage of the gate process.
+            {view === "board"
+              ? "Drag a card to a column to move it to that stage of the gate process."
+              : "Each bar runs from brief date to launch date, grouped by campaign."}
           </p>
         </div>
-        <Link
-          href={activeClientId ? `/products/new?client=${activeClientId}` : "/products/new"}
-          className="shrink-0 rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white"
-        >
-          + New product
-        </Link>
+        <div className="flex shrink-0 items-center gap-3">
+          <div className="flex gap-1 rounded-lg bg-petal p-1">
+            <Link
+              href={viewHref("board")}
+              className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                view === "board" ? "bg-white text-ink shadow-sm" : "text-ink/50"
+              }`}
+            >
+              Board
+            </Link>
+            <Link
+              href={viewHref("timeline")}
+              className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                view === "timeline" ? "bg-white text-ink shadow-sm" : "text-ink/50"
+              }`}
+            >
+              Timeline
+            </Link>
+          </div>
+          <Link
+            href={activeClientId ? `/products/new?client=${activeClientId}` : "/products/new"}
+            className="shrink-0 rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white"
+          >
+            + New product
+          </Link>
+        </div>
       </div>
       <div className="mt-6">
-        <PipelineBoard products={products} openActionProductIds={openActionProductIds} bmLabel={bmLabel} />
+        {view === "board" ? (
+          <PipelineBoard products={products} openActionProductIds={openActionProductIds} bmLabel={bmLabel} />
+        ) : (
+          <LaunchTimeline products={products} />
+        )}
       </div>
     </div>
   );

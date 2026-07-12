@@ -61,6 +61,8 @@ export type Product = {
   stageEntered: string | null;
   gateDecision: string | null;
   nextGateDate: string | null;
+  briefDate: string | null;
+  launchDate: string | null;
   launchType: string | null;
   productLife: string | null;
   brandManager: string | null;
@@ -206,6 +208,8 @@ function mapProduct(page: PageObjectResponse): Product {
     stageEntered: dateStart(p, "Stage entered"),
     gateDecision: select(p, "Gate decision"),
     nextGateDate: dateStart(p, "Next gate date"),
+    briefDate: dateStart(p, "Brief date"),
+    launchDate: dateStart(p, "Launch date"),
     launchType: select(p, "Launch type"),
     productLife: select(p, "Product life"),
     brandManager: text(p, "Brand manager"),
@@ -385,6 +389,8 @@ const PRODUCT_FIELD_WRITERS: {
   stageEntered: (v) => dateProp(v as string),
   gateDecision: (v) => selectProp(v as string),
   nextGateDate: (v) => dateProp(v as string),
+  briefDate: (v) => dateProp(v as string),
+  launchDate: (v) => dateProp(v as string),
   launchType: (v) => selectProp(v as string),
   productLife: (v) => selectProp(v as string),
   brandManager: (v) => textProp(v as string),
@@ -411,6 +417,8 @@ const PRODUCT_NOTION_KEYS: Partial<Record<keyof Product, string>> = {
   stageEntered: "Stage entered",
   gateDecision: "Gate decision",
   nextGateDate: "Next gate date",
+  briefDate: "Brief date",
+  launchDate: "Launch date",
   launchType: "Launch type",
   productLife: "Product life",
   brandManager: "Brand manager",

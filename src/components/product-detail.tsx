@@ -276,6 +276,18 @@ export function ProductDetail({
               value={form.nextGateDate ?? ""}
               onChange={(v) => updateField("nextGateDate", v)}
             />
+            <FieldText
+              label="Brief date"
+              type="date"
+              value={form.briefDate ?? ""}
+              onChange={(v) => updateField("briefDate", v)}
+            />
+            <FieldText
+              label="Launch date"
+              type="date"
+              value={form.launchDate ?? ""}
+              onChange={(v) => updateField("launchDate", v)}
+            />
 
             <FieldText label={bmLabel} value={form.brandManager ?? ""} onChange={(v) => updateField("brandManager", v)} />
             <FieldText label="Formulation lead" value={form.formulationLead ?? ""} onChange={(v) => updateField("formulationLead", v)} />
