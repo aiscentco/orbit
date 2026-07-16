@@ -46,6 +46,12 @@ export function ClientSetupForm({ client }: { client: Client }) {
     setSaved(false);
   }
 
+  function updateDistribution(key: keyof Client["distribution"], value: string) {
+    setForm((f) => ({ ...f, distribution: { ...f.distribution, [key]: value } }));
+    setDirty(true);
+    setSaved(false);
+  }
+
   function handleSave() {
     startTransition(async () => {
       const updated = await saveClientFields(client.id, {
@@ -55,6 +61,7 @@ export function ClientSetupForm({ client }: { client: Client }) {
         halalRequired: form.halalRequired,
         chinaComplianceRequired: form.chinaComplianceRequired,
         labels: form.labels,
+        distribution: form.distribution,
       });
       setForm(updated);
       setDirty(false);
@@ -138,6 +145,38 @@ export function ClientSetupForm({ client }: { client: Client }) {
           />
           China compliance required
         </label>
+      </div>
+
+      <h2 className="mt-8 font-heading text-lg text-ink">Gate alert recipients</h2>
+      <p className="mt-1 text-xs text-ink/40">
+        Who gets the daily gate-alert digest for this client, by function. Leave blank to skip a function.
+      </p>
+      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FieldText
+          label="Project Manager"
+          value={form.distribution.projectManager ?? ""}
+          onChange={(v) => updateDistribution("projectManager", v)}
+        />
+        <FieldText
+          label="Marketing"
+          value={form.distribution.marketing ?? ""}
+          onChange={(v) => updateDistribution("marketing", v)}
+        />
+        <FieldText
+          label="R&D"
+          value={form.distribution.rnd ?? ""}
+          onChange={(v) => updateDistribution("rnd", v)}
+        />
+        <FieldText
+          label="Procurement"
+          value={form.distribution.procurement ?? ""}
+          onChange={(v) => updateDistribution("procurement", v)}
+        />
+        <FieldText
+          label="Packaging"
+          value={form.distribution.packaging ?? ""}
+          onChange={(v) => updateDistribution("packaging", v)}
+        />
       </div>
 
       <div className="mt-8 flex items-center gap-3">

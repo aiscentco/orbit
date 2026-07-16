@@ -44,6 +44,13 @@ export type Client = {
     planningSystem: string | null;
     bmRole: string | null;
   };
+  distribution: {
+    projectManager: string | null;
+    marketing: string | null;
+    rnd: string | null;
+    procurement: string | null;
+    packaging: string | null;
+  };
   brandPrimaryColor: string | null;
   brandAccentColor: string | null;
   halalRequired: boolean;
@@ -185,6 +192,13 @@ function mapClient(page: PageObjectResponse): Client {
       planningSystem: text(p, "Label: planning system"),
       bmRole: text(p, "Label: BM role"),
     },
+    distribution: {
+      projectManager: text(p, "Distribution: Project Manager"),
+      marketing: text(p, "Distribution: Marketing"),
+      rnd: text(p, "Distribution: R&D"),
+      procurement: text(p, "Distribution: Procurement"),
+      packaging: text(p, "Distribution: Packaging"),
+    },
     brandPrimaryColor: text(p, "Brand primary color"),
     brandAccentColor: text(p, "Brand accent color"),
     halalRequired: checkbox(p, "HALAL required"),
@@ -282,9 +296,20 @@ const CLIENT_LABEL_KEYS: Record<keyof Client["labels"], string> = {
   bmRole: "Label: BM role",
 };
 
+const CLIENT_DISTRIBUTION_KEYS: Record<keyof Client["distribution"], string> = {
+  projectManager: "Distribution: Project Manager",
+  marketing: "Distribution: Marketing",
+  rnd: "Distribution: R&D",
+  procurement: "Distribution: Procurement",
+  packaging: "Distribution: Packaging",
+};
+
 export async function updateClient(
   id: string,
-  fields: Partial<Omit<Client, "id" | "labels">> & { labels?: Partial<Client["labels"]> }
+  fields: Partial<Omit<Client, "id" | "labels" | "distribution">> & {
+    labels?: Partial<Client["labels"]>;
+    distribution?: Partial<Client["distribution"]>;
+  }
 ): Promise<Client> {
   const properties: Record<string, object> = {};
 
@@ -304,6 +329,15 @@ export async function updateClient(
       const value = fields.labels[key];
       if (value !== undefined && value !== null) {
         properties[CLIENT_LABEL_KEYS[key]] = textProp(value);
+      }
+    }
+  }
+
+  if (fields.distribution) {
+    for (const key of Object.keys(fields.distribution) as (keyof Client["distribution"])[]) {
+      const value = fields.distribution[key];
+      if (value !== undefined && value !== null) {
+        properties[CLIENT_DISTRIBUTION_KEYS[key]] = textProp(value);
       }
     }
   }

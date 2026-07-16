@@ -222,6 +222,7 @@ Build these AFTER Milestones 1–11 are complete and working. Do not start them 
 - **Workload view** (add to Reports): active products per lead (BM / FRM / PRO), bar per person, red highlight when someone carries a disproportionate share of late products.
 - **Time-in-stage counter** (add to product cards + detail): days the product has been at its current gate stage. Store a `stage_entered_date` whenever the stage changes (write it to a new Notion property "Stage entered" — create it if missing). Show "12d at G2" on cards; highlight amber/red when it exceeds 30/60 days.
 - **Activity timeline** (add to product detail): merge actions, gate decisions, and skill triggers into one chronological feed per product — the product's full story in one scroll.
+- **Actionable gate-alert emails** (Milestone 13 follow-up): for "just went late" and "just went critical" items specifically, include the top 3 open actions for that product directly in the digest email (not just a link) - so the recipient sees what needs to happen without opening the app. Skip this for "gate date in 7 days" alerts (just a heads-up, nothing to list yet) and don't build until real client feedback says it's needed.
 
 ### Milestone 12 — Launch timeline (Gantt-style)
 A horizontal timeline view: each product is a bar from its brief date to launch date, gate milestones as diamond markers, grouped by campaign. Today-line vertical marker. Late products' bars tinted red. Read-only in v1 (no drag-to-reschedule yet). This is the "whole campaign at a glance" view.

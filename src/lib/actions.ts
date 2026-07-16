@@ -23,7 +23,10 @@ function today(): string {
 
 export async function saveClientFields(
   clientId: string,
-  fields: Partial<Omit<Client, "id" | "labels">> & { labels?: Partial<Client["labels"]> }
+  fields: Partial<Omit<Client, "id" | "labels" | "distribution">> & {
+    labels?: Partial<Client["labels"]>;
+    distribution?: Partial<Client["distribution"]>;
+  }
 ) {
   await assertClientAccess(clientId);
   const updated = await updateClient(clientId, fields);
