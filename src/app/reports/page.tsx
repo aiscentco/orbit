@@ -7,6 +7,7 @@ import {
   actionCompletionRate,
   LEAD_FIELDS,
 } from "@/lib/reports";
+import { productsWithCostData, costVariance, COST_VARIANCE_COLORS, type ProductCostRow } from "@/lib/costs";
 import Link from "next/link";
 import { BarRow } from "@/components/bar-row";
 import { RiskBadge } from "@/components/risk-badge";
@@ -33,6 +34,7 @@ export default async function ReportsPage({
   };
   let lateCritical: { id: string; name: string; clientId: string | null; stage: string | null; daysUntil: number | null; level: "late" | "critical" }[] = [];
   let actionStats = { done: 0, total: 0, percent: 0 };
+  let costRows: ProductCostRow[] = [];
 
   try {
     if (activeClientId) {
@@ -53,6 +55,7 @@ export default async function ReportsPage({
     const risks = riskByProduct(visibleProducts);
     leadBreakdown = lateProductsByLead(visibleProducts, risks);
     actionStats = actionCompletionRate(actions);
+    costRows = productsWithCostData(visibleProducts);
 
     lateCritical = visibleProducts
       .map((p) => ({ product: p, risk: risks.get(p.id)! }))
@@ -183,6 +186,75 @@ export default async function ReportsPage({
                   <RiskBadge risk={{ level: p.level, label: p.level === "critical" ? "Critical" : "Late", daysUntil: p.daysUntil }} />
                 </Link>
               ))
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-card border border-black/5 p-5 lg:col-span-2">
+          <h2 className="font-heading text-lg text-ink">Budget vs actual by product</h2>
+          <p className="mt-1 text-sm text-ink/60">
+            Target, quoted, and final cost per product, with variance called out directly.
+          </p>
+          <div className="mt-4 flex flex-col gap-5">
+            {costRows.length === 0 ? (
+              <p className="text-sm text-ink/50">No cost data logged yet.</p>
+            ) : (
+              costRows.map((row) => {
+                const max = Math.max(1, row.target ?? 0, row.quoted ?? 0, row.final ?? 0);
+                const fmt = (n: number) => `$${n.toLocaleString()}`;
+                const pct = (p: number | null) => (p === null ? null : `${p > 0 ? "+" : ""}${Math.round(p)}%`);
+                const quotedVar = costVariance(row.target, row.quoted);
+                const finalVar = costVariance(row.target, row.final);
+                const finalVsQuotedVar = costVariance(row.quoted, row.final);
+                const suffixFor = (v: typeof quotedVar) =>
+                  v.pct === null ? undefined : { text: `(${pct(v.pct)})`, color: COST_VARIANCE_COLORS[v.level] };
+                return (
+                  <div key={row.productId}>
+                    <Link
+                      href={`/products/${row.productId}`}
+                      className="text-sm font-medium text-ink hover:text-brand-primary"
+                    >
+                      {row.productName}
+                    </Link>
+                    <div className="mt-2 flex flex-col gap-2">
+                      {row.target !== null && (
+                        <BarRow label="Target" count={row.target} max={max} color="#3b82f6" displayValue={fmt(row.target)} />
+                      )}
+                      {row.quoted !== null && (
+                        <BarRow
+                          label="Quoted"
+                          count={row.quoted}
+                          max={max}
+                          color="#f59e0b"
+                          displayValue={fmt(row.quoted)}
+                          suffix={suffixFor(quotedVar)}
+                        />
+                      )}
+                      {row.final !== null && (
+                        <BarRow
+                          label="Final"
+                          count={row.final}
+                          max={max}
+                          color="var(--brand-primary)"
+                          displayValue={fmt(row.final)}
+                          suffix={suffixFor(finalVar)}
+                        />
+                      )}
+                    </div>
+                    {row.quoted !== null && row.final !== null && (
+                      <p className="mt-1 text-xs text-ink/40">
+                        Final vs quoted:{" "}
+                        <span
+                          style={{ color: COST_VARIANCE_COLORS[finalVsQuotedVar.level] }}
+                          className="font-medium"
+                        >
+                          {pct(finalVsQuotedVar.pct) ?? "—"}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
         </section>

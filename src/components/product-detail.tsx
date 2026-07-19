@@ -18,6 +18,7 @@ import {
 import { SkillsPanel } from "@/components/skills-panel";
 import { ActionExtractor } from "@/components/action-extractor";
 import { InlineOwner } from "@/components/inline-owner";
+import { costVariance, COST_VARIANCE_COLORS } from "@/lib/costs";
 
 const GATE_DECISIONS = ["GO (on time)", "GO (late)", "HOLD", "POSTPONE", "CANCEL"] as const;
 const LAUNCH_TYPES = ["Regular", "Super", "Mega", "Hero"] as const;
@@ -112,6 +113,32 @@ const STATUS_STYLES: Record<ActionStatus, string> = {
   Waiting: "bg-status-purple/10 text-status-purple",
   Done: "bg-status-green/10 text-status-green",
 };
+
+function CostVarianceLine({
+  label,
+  actual,
+  target,
+}: {
+  label: string;
+  actual: number | null;
+  target: number | null;
+}) {
+  if (actual === null) return null;
+  const { level, pct } = costVariance(target, actual);
+  return (
+    <span className="flex items-center gap-1">
+      <span className="text-ink/50">
+        {label}: ${actual.toLocaleString()}
+      </span>
+      {pct !== null && (
+        <span style={{ color: COST_VARIANCE_COLORS[level] }} className="font-medium">
+          ({pct > 0 ? "+" : ""}
+          {Math.round(pct)}% vs target)
+        </span>
+      )}
+    </span>
+  );
+}
 
 export function ProductDetail({
   product,
@@ -240,6 +267,12 @@ export function ProductDetail({
         {current.stageEntered && (
           <p className="mt-2 text-xs text-ink/40">In this stage since {current.stageEntered}</p>
         )}
+        {(current.quotedCost !== null || current.finalCost !== null) && (
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+            <CostVarianceLine label="Quoted" actual={current.quotedCost} target={current.targetCost} />
+            <CostVarianceLine label="Final" actual={current.finalCost} target={current.targetCost} />
+          </div>
+        )}
       </div>
 
       <div className="mt-8">
@@ -315,6 +348,10 @@ export function ProductDetail({
 
             <FieldNumber label={revenueLabel} value={form.revenueTarget} onChange={(v) => updateField("revenueTarget", v)} />
             <FieldNumber label={marginLabel} value={form.marginTargetPct} onChange={(v) => updateField("marginTargetPct", v)} />
+
+            <FieldNumber label="Target cost" value={form.targetCost} onChange={(v) => updateField("targetCost", v)} />
+            <FieldNumber label="Quoted cost" value={form.quotedCost} onChange={(v) => updateField("quotedCost", v)} />
+            <FieldNumber label="Final cost" value={form.finalCost} onChange={(v) => updateField("finalCost", v)} />
 
             {showShadeCount ? (
               <FieldNumber label="Shade count" value={form.shadeCount} onChange={(v) => updateField("shadeCount", v)} />

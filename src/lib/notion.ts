@@ -86,6 +86,9 @@ export type Product = {
   halalCompliant: string | null;
   briefLink: string | null;
   projectStatus: string | null;
+  targetCost: number | null;
+  quotedCost: number | null;
+  finalCost: number | null;
 };
 
 export type ActionStatus = "To do" | "Waiting" | "Done";
@@ -240,6 +243,9 @@ function mapProduct(page: PageObjectResponse): Product {
     halalCompliant: select(p, "HALAL compliant"),
     briefLink: url(p, "Brief link"),
     projectStatus: select(p, "Project status"),
+    targetCost: num(p, "Target cost"),
+    quotedCost: num(p, "Quoted cost"),
+    finalCost: num(p, "Final cost"),
   };
 }
 
@@ -441,6 +447,9 @@ const PRODUCT_FIELD_WRITERS: {
   halalCompliant: (v) => selectProp(v as string),
   briefLink: (v) => ({ url: v as string }),
   projectStatus: (v) => selectProp(v as string),
+  targetCost: (v) => numberProp(v as number),
+  quotedCost: (v) => numberProp(v as number),
+  finalCost: (v) => numberProp(v as number),
 };
 
 const PRODUCT_NOTION_KEYS: Partial<Record<keyof Product, string>> = {
@@ -469,6 +478,9 @@ const PRODUCT_NOTION_KEYS: Partial<Record<keyof Product, string>> = {
   halalCompliant: "HALAL compliant",
   briefLink: "Brief link",
   projectStatus: "Project status",
+  targetCost: "Target cost",
+  quotedCost: "Quoted cost",
+  finalCost: "Final cost",
 };
 
 export async function updateProduct(

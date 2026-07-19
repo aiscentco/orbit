@@ -7,6 +7,7 @@ import { computeRisk, riskRank, PIPELINE_COLUMNS, stageToColumn, STAGE_PROGRESS 
 import { ProgressBar } from "@/components/progress-bar";
 import { RiskBadge } from "@/components/risk-badge";
 import { moveProductStage } from "@/lib/actions";
+import { bestActualCost, costVariance } from "@/lib/costs";
 
 type GroupBy = "stage" | "campaign";
 
@@ -108,6 +109,8 @@ export function PipelineBoard({
             <div className="flex flex-col gap-2">
               {sortByUrgency(col.products).map((product) => {
                 const risk = computeRisk(product.nextGateDate);
+                const actualCost = bestActualCost(product.quotedCost, product.finalCost);
+                const variance = costVariance(product.targetCost, actualCost);
                 return (
                   <Link
                     key={product.id}
@@ -124,12 +127,22 @@ export function PipelineBoard({
                           {product.campaign ? ` · ${product.campaign}` : ""}
                         </p>
                       </div>
-                      {openSet.has(product.id) && (
-                        <span
-                          className="mt-1 h-2 w-2 shrink-0 rounded-full bg-brand-primary"
-                          title="Has open actions"
-                        />
-                      )}
+                      <div className="mt-1 flex shrink-0 items-center gap-1">
+                        {variance.level === "over" && (
+                          <span
+                            className="text-status-red"
+                            title={`Over budget by ${Math.round(variance.pct ?? 0)}%`}
+                          >
+                            $
+                          </span>
+                        )}
+                        {openSet.has(product.id) && (
+                          <span
+                            className="h-2 w-2 rounded-full bg-brand-primary"
+                            title="Has open actions"
+                          />
+                        )}
+                      </div>
                     </div>
 
                     <div className="mt-2">
