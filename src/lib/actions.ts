@@ -166,3 +166,13 @@ export async function cycleActionStatus(actionId: string, productId: string, cur
   revalidatePath("/");
   return action;
 }
+
+export async function assignActionOwner(actionId: string, productId: string, owner: string) {
+  const product = await getProduct(productId);
+  await assertClientAccess(product.clientId);
+  const action = await updateAction(actionId, { owner });
+  revalidatePath(`/products/${productId}`);
+  revalidatePath("/actions");
+  revalidatePath("/");
+  return action;
+}

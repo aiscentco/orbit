@@ -8,9 +8,16 @@ import { computeRisk, STAGE_PROGRESS } from "@/lib/gates";
 import { GateStepper } from "@/components/gate-stepper";
 import { ProgressBar } from "@/components/progress-bar";
 import { RiskBadge } from "@/components/risk-badge";
-import { moveProductStage, saveProductFields, addProductAction, cycleActionStatus } from "@/lib/actions";
+import {
+  moveProductStage,
+  saveProductFields,
+  addProductAction,
+  cycleActionStatus,
+  assignActionOwner,
+} from "@/lib/actions";
 import { SkillsPanel } from "@/components/skills-panel";
 import { ActionExtractor } from "@/components/action-extractor";
+import { InlineOwner } from "@/components/inline-owner";
 
 const GATE_DECISIONS = ["GO (on time)", "GO (late)", "HOLD", "POSTPONE", "CANCEL"] as const;
 const LAUNCH_TYPES = ["Regular", "Super", "Mega", "Hero"] as const;
@@ -182,6 +189,13 @@ export function ProductDetail({
     );
     startActionTransition(async () => {
       await cycleActionStatus(action.id, product.id, action.status ?? "To do");
+    });
+  }
+
+  function handleAssignOwner(action: Action, owner: string) {
+    setActionList((prev) => prev.map((a) => (a.id === action.id ? { ...a, owner } : a)));
+    startActionTransition(async () => {
+      await assignActionOwner(action.id, product.id, owner);
     });
   }
 
@@ -373,8 +387,11 @@ export function ProductDetail({
               <div key={action.id} className="rounded-card border border-black/5 p-3">
                 <p className="text-sm text-ink">{action.note}</p>
                 <div className="mt-2 flex items-center justify-between text-xs text-ink/50">
-                  <span>
-                    {action.owner ?? "Unassigned"}
+                  <span className="flex items-center gap-1">
+                    <InlineOwner
+                      owner={action.owner}
+                      onSave={(owner) => handleAssignOwner(action, owner)}
+                    />
                     {action.dateLogged ? ` · ${action.dateLogged}` : ""}
                   </span>
                   <button

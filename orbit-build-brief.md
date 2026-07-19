@@ -233,6 +233,8 @@ Server-side scheduled job (Vercel cron) that runs daily and sends email alerts (
 ### Milestone 14 — Product intake form
 A public form page (no login) per client, at a shareable URL: marketing submits a new product concept (name, campaign, launch type, target date, short description). Submission creates a Pre-G1 product in Notion linked to that client, and logs an action "New intake — review and complete registry fields." This is the pipeline's front door.
 
+> **Decision (skipped, kept for context):** this idea came from the Monday.com benchmark (their "Forms" feature) rather than an AIscent Co. need. Xo decided against it: no real client would want an outside, unauthenticated party able to add products, and a public link with no way to revoke it (the URL would bake in the client's permanent Notion ID) is the wrong shape for a business with a small, known set of real clients. Route B instead: a client contact who needs to submit product ideas gets a real Orbit account (client role, Milestone 10), and uses the existing "+ New product" flow on Pipeline - already fully scoped/secured, no new building required. The only change made was polish: New Product's client field now shows a static name instead of a single-option dropdown when there's only one client to choose from.
+
 ### Milestone 15 — Cost tracking
 Add to product detail and G2 views: Target cost, Quoted cost, Final cost (create Notion properties if missing). Show variance vs target with color coding. Feed into Reports as a budget-vs-actual chart per campaign.
 

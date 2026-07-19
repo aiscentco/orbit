@@ -3,9 +3,10 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Action, Product, Client, ActionStatus } from "@/lib/notion";
-import { cycleActionStatus } from "@/lib/actions";
+import { cycleActionStatus, assignActionOwner } from "@/lib/actions";
 import { computeRisk, riskRank } from "@/lib/gates";
 import { RiskBadge } from "@/components/risk-badge";
+import { InlineOwner } from "@/components/inline-owner";
 import { FUNCTION_COLORS, type SkillFunction } from "@/lib/skills";
 
 const STATUS_FILTERS = ["All", "To do", "Waiting", "Done"] as const;
@@ -51,6 +52,7 @@ function ActionRow({
   showProduct,
   onOpen,
   onCycleStatus,
+  onAssignOwner,
 }: {
   action: Action;
   product: Product | undefined;
@@ -58,6 +60,7 @@ function ActionRow({
   showProduct: boolean;
   onOpen: () => void;
   onCycleStatus: (e: React.MouseEvent) => void;
+  onAssignOwner: (owner: string) => void;
 }) {
   return (
     <div
@@ -66,10 +69,14 @@ function ActionRow({
     >
       <div className="min-w-0">
         <p className="text-sm text-ink">{action.note}</p>
-        <p className="mt-1 text-xs text-ink/40">
-          {showProduct ? (product?.name ?? "Unknown product") : ""}
-          {showProduct && client ? ` · ${client.name}` : ""}
-          {action.owner ? `${showProduct ? " · " : ""}${action.owner}` : ""}
+        <p className="mt-1 flex items-center gap-1 text-xs text-ink/40">
+          {showProduct && (
+            <span>
+              {product?.name ?? "Unknown product"}
+              {client ? ` · ${client.name}` : ""} ·{" "}
+            </span>
+          )}
+          <InlineOwner owner={action.owner} onSave={onAssignOwner} />
           {action.dateLogged ? ` · ${action.dateLogged}` : ""}
         </p>
       </div>
@@ -115,6 +122,14 @@ export function ActionsList({
     });
   }
 
+  function handleAssignOwner(action: Action, owner: string) {
+    if (!action.productId) return;
+    setItems((prev) => prev.map((a) => (a.id === action.id ? { ...a, owner } : a)));
+    startTransition(async () => {
+      await assignActionOwner(action.id, action.productId!, owner);
+    });
+  }
+
   function renderRow(action: Action, showProduct: boolean) {
     const product = action.productId ? productMap.get(action.productId) : undefined;
     const client = product?.clientId ? clientMap.get(product.clientId) : undefined;
@@ -127,6 +142,7 @@ export function ActionsList({
         showProduct={showProduct}
         onOpen={() => product && router.push(`/products/${product.id}`)}
         onCycleStatus={(e) => handleCycleStatus(action, e)}
+        onAssignOwner={(owner) => handleAssignOwner(action, owner)}
       />
     );
   }

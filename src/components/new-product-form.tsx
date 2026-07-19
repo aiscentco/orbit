@@ -67,21 +67,28 @@ export function NewProductForm({
           />
         </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-xs text-ink/50">Client</span>
-          <select
-            value={clientId}
-            onChange={(e) => setClientId(e.target.value)}
-            className="rounded-lg border border-black/10 bg-white px-3 py-1.5 text-sm text-ink"
-          >
-            <option value="">Select a client…</option>
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        {clients.length === 1 ? (
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-ink/50">Client</span>
+            <p className="text-sm text-ink">{clients[0].name}</p>
+          </div>
+        ) : (
+          <label className="flex flex-col gap-1">
+            <span className="text-xs text-ink/50">Client</span>
+            <select
+              value={clientId}
+              onChange={(e) => setClientId(e.target.value)}
+              className="rounded-lg border border-black/10 bg-white px-3 py-1.5 text-sm text-ink"
+            >
+              <option value="">Select a client…</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-1">
