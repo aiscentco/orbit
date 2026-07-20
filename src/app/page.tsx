@@ -9,6 +9,7 @@ import { computeRisk, riskRank, STAGE_PROGRESS, type Risk } from "@/lib/gates";
 import { ProgressRing } from "@/components/progress-ring";
 import { RiskBadge } from "@/components/risk-badge";
 import { getAuthContext, resolveClientFilter } from "@/lib/auth";
+import { OrbitAssistant } from "@/components/orbit-assistant";
 
 function greeting(hour: number): string {
   if (hour < 12) return "Good morning";
@@ -163,6 +164,7 @@ export default async function DashboardPage({
           </div>
         </div>
       </div>
+      <OrbitAssistant clientId={activeClientId ?? null} />
     </div>
   );
 }

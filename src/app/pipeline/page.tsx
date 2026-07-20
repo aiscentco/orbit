@@ -3,6 +3,7 @@ import { getClient, getProducts, getActionsForProducts, type Client, type Produc
 import { PipelineBoard } from "@/components/pipeline-board";
 import { LaunchTimeline } from "@/components/launch-timeline";
 import { getAuthContext, resolveClientFilter } from "@/lib/auth";
+import { OrbitAssistant } from "@/components/orbit-assistant";
 
 export default async function PipelinePage({
   searchParams,
@@ -102,6 +103,7 @@ export default async function PipelinePage({
           <LaunchTimeline products={products} />
         )}
       </div>
+      <OrbitAssistant clientId={activeClientId ?? null} />
     </div>
   );
 }
